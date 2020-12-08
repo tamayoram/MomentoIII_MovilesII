@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.example.fbooks.models.BookModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -60,8 +61,7 @@ public class DetailActivity2 extends BaseActivity {
                 String code,title,description,id;
                 boolean available;
 
-                DocumentReference bookDocument = collectionReference.document();
-                id=bookDocument.getId();
+                id=collectionReference.document(model.getId()).getId();
 
                 code=et_detail2_code.getText().toString();
                 title=et_detail2_title.getText().toString();
@@ -114,18 +114,24 @@ public class DetailActivity2 extends BaseActivity {
     }
 
     private void update(BookModel model){
+
         if(collectionReference!=null){
-            collectionReference.document(model.getId()).set(model).addOnCompleteListener(new OnCompleteListener<Void>() {
+            collectionReference.document(model.getId()).set(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
-                public void onComplete(@NonNull Task<Void> task) {
+                public void onSuccess(Void aVoid) {
                     makeSimpleAlertDialog("Success","The book was updated");
                 }
-            });
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            makeSimpleAlertDialog("Success","The book was not updated");
+                        }
+                    });
 
         }else{
 
             makeSimpleAlertDialog("Error","Not database connection");
         }
-
     }
 }
